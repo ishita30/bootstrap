@@ -18,7 +18,7 @@ import {
 import EventHandler from './dom/event-handler'
 import Manipulator from './dom/manipulator'
 import SelectorEngine from './dom/selector-engine'
-import { getWidth as getScrollBarWidth, hide as scrollBarHide, reset as scrollBarReset } from './util/scrollbar'
+import ScrollBarHelper from './util/scrollbar'
 import BaseComponent from './base-component'
 import Backdrop from './util/backdrop'
 
@@ -85,6 +85,7 @@ class Modal extends BaseComponent {
     this._isShown = false
     this._ignoreBackdropClick = false
     this._isTransitioning = false
+    this._scrollBar = new ScrollBarHelper()
   }
 
   // Getters
@@ -122,7 +123,7 @@ class Modal extends BaseComponent {
       this._isTransitioning = true
     }
 
-    scrollBarHide()
+    this._scrollBar.hide()
 
     document.body.classList.add(CLASS_NAME_OPEN)
 
@@ -303,7 +304,7 @@ class Modal extends BaseComponent {
     this._backdrop.hide(() => {
       document.body.classList.remove(CLASS_NAME_OPEN)
       this._resetAdjustments()
-      scrollBarReset()
+      this._scrollBar.reset()
       EventHandler.trigger(this._element, EVENT_HIDDEN)
     })
   }
@@ -367,7 +368,7 @@ class Modal extends BaseComponent {
 
   _adjustDialog() {
     const isModalOverflowing = this._element.scrollHeight > document.documentElement.clientHeight
-    const scrollbarWidth = getScrollBarWidth()
+    const scrollbarWidth = this._scrollBar.getWidth()
     const isBodyOverflowing = scrollbarWidth > 0
 
     if ((!isBodyOverflowing && isModalOverflowing && !isRTL()) || (isBodyOverflowing && !isModalOverflowing && isRTL())) {
